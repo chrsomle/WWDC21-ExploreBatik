@@ -4,41 +4,65 @@ public class Main: SKScene {
   
   private var background: SKSpriteNode?
   private var character: SKSpriteNode!
+
+  private var idleTextures = [SKTexture(imageNamed: "Idle (1)"),
+                               SKTexture(imageNamed: "Idle (2)"),
+                               SKTexture(imageNamed: "Idle (3)"),
+                               SKTexture(imageNamed: "Idle (4)"),
+                               SKTexture(imageNamed: "Idle (5)"),
+                               SKTexture(imageNamed: "Idle (6)"),
+                               SKTexture(imageNamed: "Idle (7)"),
+                               SKTexture(imageNamed: "Idle (8)"),
+                               SKTexture(imageNamed: "Idle (9)"),
+                               SKTexture(imageNamed: "Idle (10)"),
+                               SKTexture(imageNamed: "Idle (11)"),
+                               SKTexture(imageNamed: "Idle (12)"),
+                               SKTexture(imageNamed: "Idle (13)"),
+                               SKTexture(imageNamed: "Idle (14)"),
+                               SKTexture(imageNamed: "Idle (15)")]
+
+  private var walkTextures = [SKTexture(imageNamed: "Walk (1)"),
+                               SKTexture(imageNamed: "Walk (2)"),
+                               SKTexture(imageNamed: "Walk (3)"),
+                               SKTexture(imageNamed: "Walk (4)"),
+                               SKTexture(imageNamed: "Walk (5)"),
+                               SKTexture(imageNamed: "Walk (6)"),
+                               SKTexture(imageNamed: "Walk (7)"),
+                               SKTexture(imageNamed: "Walk (8)"),
+                               SKTexture(imageNamed: "Walk (9)"),
+                               SKTexture(imageNamed: "Walk (10)"),
+                               SKTexture(imageNamed: "Walk (11)"),
+                               SKTexture(imageNamed: "Walk (12)"),
+                               SKTexture(imageNamed: "Walk (13)"),
+                               SKTexture(imageNamed: "Walk (14)"),
+                               SKTexture(imageNamed: "Walk (15)")]
   
   public override func didMove(to view: SKView) {
     setupInitialConfig()
-    layoutBackgrounds()
-    layoutCharacter()
+    if let character = self.childNode(withName: "character") as? SKSpriteNode {
+      let idleAnimation = SKAction.animate(with: idleTextures, timePerFrame: 0.05)
+      character.run(SKAction.repeatForever(idleAnimation))
+    }
   }
   
   override public func update(_ currentTime: TimeInterval) {
-    moveGrounds()
   }
   
   public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-    // Capture the touch event.
     if let touch: UITouch = touches.first {
-      
-      // Get the position that was touched.
-      let touchPosition = touch.location(in: self)
-      
-      // Get sprite's current position (a.k.a. starting point).
-      let currentPosition = character.position
-      
-      // Calculate the angle using the relative positions of the sprite and touch.
-      let angle = atan2(currentPosition.y - touchPosition.y, currentPosition.x - touchPosition.x)
-      
-      // Define actions for the ship to take.
-      let rotateAction = SKAction.rotate(toAngle: angle + CGFloat( Double.pi * 0.5), duration: 0.0)
-      let moveAction = SKAction.move(to: touchPosition, duration: 0.5)
-      
-      // Tell the ship to execute actions.
-      character.run(SKAction.sequence([rotateAction, moveAction]))
+      if let character = self.childNode(withName: "character") as? SKSpriteNode {
+        let walkAnimation = SKAction.animate(with: walkTextures, timePerFrame: 0.05)
+        let idleAnimation = SKAction.animate(with: idleTextures, timePerFrame: 0.05)
+
+        let touchPosition = touch.location(in: self)
+        let moveAction = SKAction.move(to: touchPosition, duration: 0.5)
+        character.run(SKAction.repeatForever(walkAnimation))
+        character.run(moveAction, completion: { character.run(SKAction.repeatForever(SKAction.repeatForever(idleAnimation))) })
+      }
     }
   }
   
   private func setupInitialConfig() {
-    self.alpha = 0
     self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
     let backsoundAction = SKAction.repeatForever(SKAction.playSoundFileNamed(fileName: "background-music.mp3", atVolume: 0.3, waitForCompletion: true))
     self.run(backsoundAction)
@@ -53,7 +77,6 @@ public class Main: SKScene {
       background.position     = CGPoint(x: CGFloat(i) * background.size.width, y: 0)
       addChild(background)
     }
-    self.run(SKAction.fadeAlpha(to: 1, duration: 1))
   }
   
   private func moveGrounds() {
@@ -66,18 +89,4 @@ public class Main: SKScene {
     })
   }
   
-  private func layoutCharacter() {
-    character           = SKSpriteNode(imageNamed: "assets/sprites/Idle (1)")
-    character.xScale    = 0.4
-    character.yScale    = 0.4
-    character.position  = CGPoint(x: -190, y: -120)
-    addChild(character)
-    
-    var textures = [SKTexture]()
-    for i in 1...15 {
-      textures.append(SKTexture(imageNamed: "assets/sprites/Idle (\(i))"))
-    }
-    let idleAnimation = SKAction.animate(withNormalTextures: textures, timePerFrame: 0.1)
-    character.run(SKAction.repeatForever(idleAnimation))
-  }
 }
